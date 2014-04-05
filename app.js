@@ -18,8 +18,8 @@ var mongoUri = process.env.MONGOLAB_URI ||
   'mongodb://localhost/local';
 
 mongo.Db.connect(mongoUri, function (err, db) {
-  db.collection('mapMarker', function(er, collection) {
-    collection.insert({'name': 'gym'}, {safe: true}, function(er,rs) {
+  db.collection('scores', function(er, collection) {
+    collection.insert({'name': 'gym', 'score' : 2000}, {safe: true}, function(er,rs) {
     });
   });
 });
@@ -51,7 +51,7 @@ app.get('/users', user.list);
 app.post('/submitScore', function (req, res){
   mongo.Db.connect(mongoUri, function (err, db){
     db.collection("scores", function (er, collection){
-      var score = req.body.scores;
+      var score = req.body.score;
       var name = req.body.playerName;
       collection.insert({"score": score, "playerName": name}, function (err, r){});
       res.send("cool beans");

@@ -3,11 +3,6 @@ html {
 }
 
 body {
-  height: 100%;
-  margin: 0;
+  margin: 20px;
   padding: 0;
-}
-
-#map-canvas{
-  height: 100%;
 }
