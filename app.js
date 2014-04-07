@@ -17,13 +17,6 @@ var mongoUri = process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
   'mongodb://localhost/local';
 
-mongo.Db.connect(mongoUri, function (err, db) {
-  db.collection('scores', function(er, collection) {
-    collection.insert({'name': 'gym', 'score' : 2000}, {safe: true}, function(er,rs) {
-    });
-  });
-});
-
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -47,6 +40,18 @@ app.get('/', routes.index);
 
 app.get('/users', user.list);
 
+app.get('/userScores.json', function (req, res){
+  mongo.Db.connect(mongoUri, function (err, db){
+    db.collection("scores", function (er, col){
+      var d = col.find({}).toArray(function(err, x){
+        console.log(x);
+      });
+      col.find({}).sort("name").toArray(function(e, x){
+        res.send(x);
+      });
+    });
+  });
+});
 
 app.post('/submitScore', function (req, res){
   mongo.Db.connect(mongoUri, function (err, db){
