@@ -3,8 +3,6 @@
  * Module dependencies.
  */
 var express = require('express');
-var routes = require('./routes');
-var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
@@ -28,17 +26,11 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
-
-app.get('/', routes.index);
-
-
-app.get('/users', user.list);
 
 app.get('/userScores.json', function (req, res){
   mongo.Db.connect(mongoUri, function (err, db){
@@ -53,6 +45,19 @@ app.get('/userScores.json', function (req, res){
   });
 });
 
+app.get('/scores.json', function (req, res){
+  mongo.Db.connect(mongoUri, function (err, db){
+    db.collection("2048_scores", function (er, col){
+      var user = req.query.username;
+      var d = col.find(username: user).sort({score:-1}).limit(100).toArray
+      (function(err,scoreData){
+        res.send(scoreData);
+      });
+    });
+  });
+});
+
+
 app.post('/submitScore', function (req, res){
   mongo.Db.connect(mongoUri, function (err, db){
     db.collection("scores", function (er, collection){
@@ -63,6 +68,20 @@ app.post('/submitScore', function (req, res){
     });
   });
 });
+
+app.post('/submit.json', function (req, res){
+  mongo.Db.connect(mongoUri, function (err, db){
+    db.collection("scores", function (er, collection){
+      var username = req.body.username;
+      var score = req.body.score;
+      var grid = req.body.grid;
+      var tStamp = new Date();
+      collection.insert({"username": username, "score": score, "grid": grid}, function (err, r){});
+      res.send("Yeah, I got it. Be cool man.");
+    });
+  });
+});
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
